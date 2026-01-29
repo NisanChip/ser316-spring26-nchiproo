@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Patron.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Library-students</a> &gt; <a href="index.source.html" class="el_package">default</a> &gt; <span class="el_source">Patron.java</span></div><h1>Patron.java</h1><pre class="source lang-java linenums">import java.time.LocalDate;
+import java.util.HashMap;
+import java.util.Map;
+
+/**
+ * Represents a library patron (user).
+ * Tracks checked out books, fines, and account status.
+ */
+public class Patron {
+    private String patronId;
+    private String name;
+    private String email;
+    private PatronType type;
+    private boolean suspended;
+    private double fines;
+    private Map&lt;String, LocalDate&gt; bookMap;
+    private int overdue;
+    private LocalDate memberDate;
+
+<span class="fc" id="L20">    public enum PatronType {</span>
+<span class="fc" id="L21">        STUDENT,</span>
+<span class="fc" id="L22">        FACULTY,</span>
+<span class="fc" id="L23">        STAFF,</span>
+<span class="fc" id="L24">        PUBLIC,</span>
+<span class="fc" id="L25">        CHILD</span>
+    }
+
+    /**
+     * Creates a new Patron.
+     *
+     * @param patronId Unique patron ID (format: P-XXXXX)
+     * @param name Patron's full name
+     * @param email Patron's email address
+     * @param type Patron type (determines checkout limits)
+     */
+<span class="fc" id="L36">    public Patron(String patronId, String name, String email, PatronType type) {</span>
+<span class="fc" id="L37">        this.patronId = patronId;</span>
+<span class="fc" id="L38">        this.name = name;</span>
+<span class="fc" id="L39">        this.email = email;</span>
+<span class="fc" id="L40">        this.type = type;</span>
+<span class="fc" id="L41">        this.suspended = false;</span>
+<span class="fc" id="L42">        this.fines = 0.0;</span>
+<span class="fc" id="L43">        this.bookMap = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L44">        this.overdue = 0;</span>
+<span class="fc" id="L45">        this.memberDate = LocalDate.now();</span>
+<span class="fc" id="L46">    }</span>
+
+    // Getters
+    public String getPatronId() {
+<span class="fc" id="L50">        return patronId;</span>
+    }
+
+    public String getName() {
+<span class="nc" id="L54">        return name;</span>
+    }
+
+    public String getEmail() {
+<span class="nc" id="L58">        return email;</span>
+    }
+
+    public PatronType getType() {
+<span class="fc" id="L62">        return type;</span>
+    }
+
+    public boolean isAccountSuspended() {
+<span class="fc" id="L66">        return suspended;</span>
+    }
+
+    public double getFineBalance() {
+<span class="fc" id="L70">        return fines;</span>
+    }
+
+    public Map&lt;String, LocalDate&gt; getCheckedOutBooks() {
+<span class="nc" id="L74">        return bookMap;</span>
+    }
+
+    public int getCheckoutCount() {
+<span class="fc" id="L78">        return bookMap.size();</span>
+    }
+
+    public int getOverdueCount() {
+<span class="fc" id="L82">        return overdue;</span>
+    }
+
+    public LocalDate getMemberSince() {
+<span class="nc" id="L86">        return memberDate;</span>
+    }
+
+    /**
+     * Returns the maximum number of books this patron can check out
+     * based on their patron type.
+     *
+     * @return Maximum checkout limit
+     */
+    public int getMaxCheckoutLimit() {
+<span class="pc bpc" id="L96" title="5 of 6 branches missed.">        switch (type) {</span>
+            case FACULTY:
+<span class="nc" id="L98">                return 20;</span>
+            case STAFF:
+<span class="nc" id="L100">                return 15;</span>
+            case STUDENT:
+<span class="fc" id="L102">                return 10;</span>
+            case PUBLIC:
+<span class="nc" id="L104">                return 5;</span>
+            case CHILD:
+<span class="nc" id="L106">                return 3;</span>
+            default:
+<span class="nc" id="L108">                return 5;</span>
+        }
+    }
+
+    /**
+     * Returns the standard loan period in days for this patron type.
+     *
+     * @return Loan period in days
+     */
+    public int getLoanPeriodDays() {
+<span class="pc bpc" id="L118" title="1 of 2 branches missed.">        if(type==PatronType.FACULTY)return 60;</span>
+<span class="pc bpc" id="L119" title="1 of 2 branches missed.">        else if(type==PatronType.STAFF)return 45;</span>
+<span class="pc bpc" id="L120" title="1 of 2 branches missed.">        else if(type==PatronType.STUDENT)return 30;</span>
+<span class="nc bnc" id="L121" title="All 2 branches missed.">        else if(type==PatronType.PUBLIC)return 21;</span>
+<span class="nc bnc" id="L122" title="All 2 branches missed.">        else if(type==PatronType.CHILD)return 14;</span>
+<span class="nc" id="L123">        else return 21;</span>
+    }
+
+    public void resetFines() {
+<span class="nc" id="L127">        this.fines = 0.0;</span>
+<span class="nc" id="L128">    }</span>
+
+    public boolean chkSuspended() {
+<span class="nc" id="L131">        return this.suspended;</span>
+    }
+
+    // Setters
+    public void setAccountSuspended(boolean suspended) {
+<span class="nc" id="L136">        this.suspended = suspended;</span>
+<span class="nc" id="L137">    }</span>
+
+    public void setOverdueCount(int count) {
+<span class="nc" id="L140">        this.overdue = count;</span>
+<span class="nc" id="L141">    }</span>
+
+    /**
+     * Adds a fine to the patron's balance.
+     *
+     * @param amount Amount to add
+     */
+    public void addFine(double amount) {
+<span class="nc bnc" id="L149" title="All 2 branches missed.">        if (amount &gt; 0) {</span>
+<span class="nc" id="L150">            this.fines += amount;</span>
+        } else {
+        }
+<span class="nc" id="L153">    }</span>
+
+    /**
+     * Pays off a portion of the fine balance.
+     *
+     * @param amount Amount to pay
+     * @return Remaining balance
+     */
+    public double payFine(double amount) {
+<span class="nc" id="L162">        this.fines = Math.max(0, this.fines - amount);</span>
+<span class="nc" id="L163">        return this.fines;</span>
+    }
+
+    /**
+     * Adds a book to the checked out books list.
+     *
+     * @param isbn Book ISBN
+     * @param dueDate Due date for the book
+     */
+    public void addCheckedOutBook(String isbn, LocalDate dueDate) {
+<span class="fc" id="L173">        bookMap.put(isbn, dueDate);</span>
+<span class="fc" id="L174">    }</span>
+
+    /**
+     * Removes a book from the checked out books list.
+     *
+     * @param isbn Book ISBN to remove
+     */
+    public void removeCheckedOutBook(String isbn) {
+<span class="nc" id="L182">        bookMap.remove(isbn);</span>
+<span class="nc" id="L183">    }</span>
+
+    /**
+     * Checks if this patron currently has a specific book checked out.
+     *
+     * @param isbn Book ISBN
+     * @return true if book is checked out by this patron
+     */
+    public boolean hasBookCheckedOut(String isbn) {
+<span class="fc bfc" id="L192" title="All 2 branches covered.">        if (bookMap.containsKey(isbn) == true) {</span>
+<span class="fc" id="L193">            return true;</span>
+        } else {
+<span class="fc" id="L195">            return false;</span>
+        }
+    }
+
+    /**
+     * Compares patrons based on patronId.
+     */
+    @Override
+    public boolean equals(Object obj) {
+<span class="nc bnc" id="L204" title="All 2 branches missed.">        if (this == obj) return true;</span>
+<span class="nc bnc" id="L205" title="All 2 branches missed.">        if (obj == null) return false;</span>
+<span class="nc bnc" id="L206" title="All 2 branches missed.">        if (getClass() != obj.getClass()) return false;</span>
+<span class="nc" id="L207">        Patron other = (Patron) obj;</span>
+<span class="nc bnc" id="L208" title="All 2 branches missed.">        if (patronId == null) {</span>
+<span class="nc bnc" id="L209" title="All 2 branches missed.">            if (other.patronId != null) return false;</span>
+<span class="nc bnc" id="L210" title="All 2 branches missed.">        } else if (!patronId.equals(other.patronId)) {</span>
+<span class="nc" id="L211">            return false;</span>
+        }
+<span class="nc" id="L213">        return true;</span>
+    }
+
+
+    @Override
+    public String toString() {
+<span class="nc" id="L219">        return patronId+&quot;-&quot;+name+&quot;(&quot;+type+&quot;)&quot;+&quot;[Books:&quot;+bookMap.size()+&quot;/&quot;+getMaxCheckoutLimit()+&quot;,Fines:$&quot;+ fines +&quot;]&quot;;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

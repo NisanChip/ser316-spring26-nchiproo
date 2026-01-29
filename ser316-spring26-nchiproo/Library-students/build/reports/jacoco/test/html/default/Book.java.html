@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Book.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Library-students</a> &gt; <a href="index.source.html" class="el_package">default</a> &gt; <span class="el_source">Book.java</span></div><h1>Book.java</h1><pre class="source lang-java linenums">import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Represents a book in the library system.
+ * Books have ISBN numbers, metadata, and availability status.
+ */
+public class Book {
+    private String isbn;
+    private String title;
+    private String author;
+    private BookType type;
+    private boolean available;
+    private boolean referenceOnly;
+    private int totalCopies;
+    private int availableCopies;
+
+<span class="fc" id="L18">    public enum BookType {</span>
+<span class="fc" id="L19">        FICTION,</span>
+<span class="fc" id="L20">        NONFICTION,</span>
+<span class="fc" id="L21">        REFERENCE,</span>
+<span class="fc" id="L22">        TEXTBOOK,</span>
+<span class="fc" id="L23">        CHILDREN</span>
+    }
+
+    /**
+     * Creates a new Book with the specified details.
+     *
+     * @param isbn The ISBN number (format: XXX-X-XXXX-XXXX-X or XXXXXXXXXX)
+     * @param title The book title
+     * @param author The book author
+     * @param type The book type (FICTION, NONFICTION, etc.)
+     * @param totalCopies Total number of copies owned by library
+     */
+<span class="fc" id="L35">    public Book(String isbn, String title, String author, BookType type, int totalCopies) {</span>
+<span class="fc" id="L36">        this.isbn = isbn;</span>
+<span class="fc" id="L37">        this.title = title;</span>
+<span class="fc" id="L38">        this.author = author;</span>
+<span class="fc" id="L39">        this.type = type;</span>
+<span class="fc" id="L40">        this.totalCopies = totalCopies;</span>
+<span class="pc bpc" id="L41" title="1 of 2 branches missed.">        this.referenceOnly = (type == BookType.REFERENCE);</span>
+
+        // Reference books never circulate - always unavailable for checkout
+<span class="pc bpc" id="L44" title="1 of 2 branches missed.">        if (this.referenceOnly) {</span>
+<span class="nc" id="L45">            this.availableCopies = 0;</span>
+<span class="nc" id="L46">            this.available = false;</span>
+        } else {
+<span class="fc" id="L48">            this.availableCopies = totalCopies;</span>
+<span class="fc" id="L49">            this.available = true;</span>
+        }
+<span class="fc" id="L51">    }</span>
+
+    // Getters
+    public String getIsbn() {
+<span class="fc" id="L55">        return isbn;</span>
+    }
+
+    public String getTitle() {
+<span class="nc" id="L59">        return title;</span>
+    }
+
+    public String getAuthor() {
+<span class="nc" id="L63">        return author;</span>
+    }
+
+    public BookType getType() {
+<span class="nc" id="L67">        return type;</span>
+    }
+
+    public boolean isAvailable() {
+<span class="fc bfc" id="L71" title="All 2 branches covered.">        return availableCopies &gt; 0;</span>
+    }
+
+    public boolean isReferenceOnly() {
+<span class="fc" id="L75">        return referenceOnly;</span>
+    }
+
+    public int getTotalCopies() {
+<span class="nc" id="L79">        return totalCopies;</span>
+    }
+
+    public int getAvailableCopies() {
+<span class="nc" id="L83">        return availableCopies;</span>
+    }
+
+    // Setters
+    public void setAvailableCopies(int copies) {
+<span class="nc" id="L88">        this.availableCopies = copies;</span>
+<span class="nc bnc" id="L89" title="All 2 branches missed.">        this.available = (copies &gt; 0);</span>
+<span class="nc" id="L90">    }</span>
+
+    /**
+     * Decrements available copies when book is checked out.
+     */
+    public void checkout() {
+<span class="pc bpc" id="L96" title="1 of 2 branches missed.">        if (availableCopies &gt; 0) {</span>
+<span class="fc" id="L97">            availableCopies--;</span>
+        }
+<span class="pc bpc" id="L99" title="1 of 2 branches missed.">        this.available = (availableCopies &gt; 0);</span>
+<span class="fc" id="L100">    }</span>
+
+    /**
+     * Increments available copies when book is returned.
+     */
+    public void returnBook() {
+<span class="nc bnc" id="L106" title="All 2 branches missed.">        if (availableCopies &lt; 100) {</span>
+<span class="nc" id="L107">            availableCopies++;</span>
+        }
+<span class="nc bnc" id="L109" title="All 2 branches missed.">        this.available = (availableCopies &gt; 0);</span>
+<span class="nc" id="L110">    }</span>
+
+    public void resetAvailability() {
+<span class="nc" id="L113">        this.availableCopies = this.totalCopies;</span>
+<span class="nc" id="L114">        this.available = true;</span>
+<span class="nc" id="L115">    }</span>
+
+    public boolean checkAvailability() {
+<span class="nc" id="L118">        return this.available;</span>
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+<span class="nc bnc" id="L123" title="All 2 branches missed.">        if (this == obj) return true;</span>
+<span class="nc bnc" id="L124" title="All 2 branches missed.">        if (obj == null) return false;</span>
+<span class="nc bnc" id="L125" title="All 2 branches missed.">        if (getClass() != obj.getClass()) return false;</span>
+<span class="nc" id="L126">        Book other = (Book) obj;</span>
+<span class="nc bnc" id="L127" title="All 2 branches missed.">        if (isbn == null) {</span>
+<span class="nc bnc" id="L128" title="All 2 branches missed.">            if (other.isbn != null) return false;</span>
+<span class="nc bnc" id="L129" title="All 2 branches missed.">        } else if (!isbn.equals(other.isbn)) {</span>
+<span class="nc" id="L130">            return false;</span>
+        }
+<span class="nc" id="L132">        return true;</span>
+    }
+
+    @Override
+    public int hashCode() {
+        // Magic number 31
+<span class="nc bnc" id="L138" title="All 2 branches missed.">        return 31 * (isbn == null ? 0 : isbn.hashCode());</span>
+    }
+
+    @Override
+    public String toString() {
+<span class="nc" id="L143">        return &quot;Book[isbn=&quot; + isbn + &quot;,title=&quot; + title + &quot;,author=&quot; + author + &quot;,type=&quot; + type + &quot;,availableCopies=&quot; + availableCopies + &quot;/&quot; + totalCopies + &quot;]&quot;;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>
