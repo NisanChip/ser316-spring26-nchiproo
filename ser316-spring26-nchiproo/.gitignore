@@ -1,0 +1,10 @@
+.gradle/
+build/
+
+.idea/
+out/
+*.iml
+
+.DS_Store
+
+jacoco/
