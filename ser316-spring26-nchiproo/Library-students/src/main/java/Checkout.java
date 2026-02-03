@@ -140,8 +140,67 @@ public class Checkout {
      * @return Status code indicating result (see above)
      */
     public double checkoutBook(Book book, Patron patron) {
-//        Implement me in Assignment 3
-        // Normal success
+//
+        if(patron == null) {
+            return 3.1;
+        }
+        if(book == null) {
+            return 2.1;
+        }
+        LocalDate checkoutDate = LocalDate.now();
+        LocalDate dueDate = LocalDate.now().plusDays(patron.getLoanPeriodDays());
+        Map<String, Book> bookList = this.bookList;
+        Map<String, Patron> patronList = this.patrons;
+        Map<String, LocalDate> checkedOutBooks = patron.getCheckedOutBooks();
+
+
+        double patronEligibility = validatePatronEligibility(patron);
+
+        if(patronEligibility == 0.0) {
+
+            if(book.isAvailable()) {
+                book.setAvailableCopies(book.getAvailableCopies());
+                if(patron.getCheckoutCount() == patron.getMaxCheckoutLimit()) {
+
+                    return 3.2;
+                }
+
+                book.checkout();
+                checkedOutBooks.put(book.getIsbn(), dueDate);
+                if(patron.getCheckoutCount() >= patron.getMaxCheckoutLimit() - 2 && patron.getCheckoutCount() < patron.getMaxCheckoutLimit()) {
+                    return 1.1;
+                }
+                if(patron.getOverdueCount() >= 1 && patron.getCheckoutCount() < patron.getMaxCheckoutLimit()) {
+                    return 1.0;
+
+                }
+
+                return 0.0;
+            }
+            if(book.isReferenceOnly()) {
+                return 5.0;
+            }
+            if(patron.hasBookCheckedOut(book.getIsbn())) {
+                patron.getCheckedOutBooks().put(book.getIsbn(), dueDate);
+                return 0.1;
+            }
+            if(!patron.hasBookCheckedOut(book.getIsbn())) {
+                if(book.getAvailableCopies() <= 0) {
+                    return 2.0;
+                }
+
+            }
+        }
+        if(patron.isAccountSuspended()) {
+            return 3.0;
+        }
+        if(patron.getOverdueCount() >= 3) {
+            return 4.0;
+        }
+        if(patron.getFineBalance() >= 10.0) {
+            return 4.1;
+        }
+
         return 0.0;
     }
 
