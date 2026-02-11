@@ -39,6 +39,8 @@ After running tests, view HTML reports at:
 
 All tests: build/reports/tests/test/index.html
 Black Box: build/reports/tests/blackBoxTest/index.html
+
+
 White Box: build/reports/tests/whiteBoxTest/index.html
 Requirements
 Java JDK 18 or higher
