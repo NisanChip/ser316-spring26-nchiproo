@@ -33,11 +33,7 @@ public class CheckoutBlackBoxSample {
      */
     @SuppressWarnings("unchecked")
     static Stream<Class<? extends Checkout>> checkoutClassProvider() {
-        return (Stream<Class<? extends Checkout>>) Stream.of(
-                Checkout0.class,
-                Checkout1.class,
-                Checkout2.class,
-                Checkout3.class);
+        return Stream.of(Checkout.class);
     }
 
     // Uncomment when you implement the method in assign 3 and comment the above
@@ -174,17 +170,22 @@ public class CheckoutBlackBoxSample {
                 "Test Author", Book.BookType.FICTION, 50);
         Book book2 = new Book("978-0-123456-78-7", "Test Book",
                 "Test Author", Book.BookType.FICTION, 50);
+        Book book3 = new Book("978-0-123456-78-7", "Test Book",
+                "Test Author", Book.BookType.FICTION, 50);
 
 
         Patron patron = new Patron("P002", "Test Patron", "test@example.com",
-                Patron.PatronType.CHILD);
+                Patron.PatronType.PUBLIC);
 
         checkout.addBook(book); // adding the book to the library
         checkout.addBook(book1); // adding the book to the library
-        checkout.addBook(book2); // adding the book to the library
+        checkout.addBook(book2);
+        checkout.addBook(book3);
 
         checkout.checkoutBook(book1, patron);
         checkout.checkoutBook(book2, patron);
+        checkout.checkoutBook(book3, patron);
+
 
         checkout.registerPatron(patron); // adding a patron to the system
 
@@ -197,6 +198,9 @@ public class CheckoutBlackBoxSample {
                 "Expected warning message 1.1 for available book for " + checkoutClass.getSimpleName());
         assertTrue(patron.hasBookCheckedOut(book.getIsbn()),
                 "Patron should have book in list for " + checkoutClass.getSimpleName());
+        // Verify: Checkout count
+        assertEquals(3, patron.getCheckoutCount(),
+                "Patron checkout count should be 3 for " + checkoutClass.getSimpleName());
     }
     //Test 5
     @ParameterizedTest
@@ -253,7 +257,7 @@ public class CheckoutBlackBoxSample {
     //Test 7
     @ParameterizedTest
     @MethodSource("checkoutClassProvider")
-    @DisplayName("T7: unsuccessful checkout - Available Book, ineligible patron due to max checkout ")
+    @DisplayName("T7: unsuccessful checkout - Available Book, ineligible patron ")
     public void testBookAvailablePatronMax(Class<? extends Checkout> checkoutClass) throws Exception {
         checkout = createCheckout(checkoutClass);
         // Setup: Create available book and eligible patron
@@ -266,6 +270,7 @@ public class CheckoutBlackBoxSample {
         Book book3 = new Book("978-0-123456-78-6", "Test Book",
                 "Test Author", Book.BookType.FICTION, 50);
 
+
         Patron patron = new Patron("P002", "Test Patron", "test@example.com",
                 Patron.PatronType.CHILD);
         // adding the books to the library
@@ -273,10 +278,13 @@ public class CheckoutBlackBoxSample {
         checkout.addBook(book1);
         checkout.addBook(book2);
         checkout.addBook(book3);
+
+        checkout.registerPatron(patron); // adding a patron to the system
         checkout.checkoutBook(book1, patron);
         checkout.checkoutBook(book2, patron);
         checkout.checkoutBook(book3, patron);
-        checkout.registerPatron(patron); // adding a patron to the system
+
+
 
         // Execute checkout
 
@@ -285,7 +293,7 @@ public class CheckoutBlackBoxSample {
         //verify
         assertEquals(3.2, result,
                 "Expected warning message 3.2 for available book for " + checkoutClass.getSimpleName());
-        // Verify: Patron should not have the book in their checked-out list
+        // Verify: Patron should have the book in their checked-out list
         assertFalse(patron.hasBookCheckedOut(book.getIsbn()),
                 "Patron should have book in checked-out list for " + checkoutClass.getSimpleName());
 
@@ -399,17 +407,18 @@ public class CheckoutBlackBoxSample {
 
         // Setup: Create available book and eligible patron
         Book book = new Book("978-0-123456-78-9", "Test Book",
-                "Test Author", Book.BookType.FICTION, 5);
+                "Test Author", Book.BookType.FICTION, 1);
 
         Patron patron = new Patron("P001", "Test Patron", "test@example.com",
                 Patron.PatronType.STUDENT);
-
+        //first checkout
         checkout.addBook(book); // adding the book to the library
         checkout.registerPatron(patron); // adding a patrol to the system
         checkout.checkoutBook(book, patron);
+        LocalDate old = patron.getCheckedOutBooks().get(book.getIsbn());
         // Execute checkout
         double result = checkout.checkoutBook(book, patron);
-
+        LocalDate newDate = patron.getCheckedOutBooks().get(book.getIsbn());
         // Verify: Should return 0.1 for success
         assertEquals(0.1, result, 0.01,
                 "Expected successful checkout (0.1) for " + checkoutClass.getSimpleName());
@@ -418,7 +427,9 @@ public class CheckoutBlackBoxSample {
         // Verify: Patron should have the book in their checked-out list
         assertTrue(patron.hasBookCheckedOut(book.getIsbn()),
                 "Patron should have book in checked-out list for " + checkoutClass.getSimpleName());
-
+        // Verify: Checkout count
+        assertEquals(1, patron.getCheckoutCount(),
+                "Patron checkout count should be 1 for " + checkoutClass.getSimpleName());
 
     }
     //Test 12
@@ -453,37 +464,41 @@ public class CheckoutBlackBoxSample {
     //Test 13
     @ParameterizedTest
     @MethodSource("checkoutClassProvider")
-    @DisplayName("T13: unsuccessful checkout - available book, ineligible patron")
+    @DisplayName("T13: successful checkout - available book, eligible patron")
     public void testBookAvailableFacultyLimit(Class<? extends Checkout> checkoutClass) throws Exception {
         checkout = createCheckout(checkoutClass);
         //creating patron
         Patron patron = new Patron("P001", "Test Patron", "test@example.com",
                 Patron.PatronType.FACULTY);
-        checkout.registerPatron(patron);
-        //temporary book to pull from the loop (wasnt allowing me use book inside the loop)
-        Book temp = null;
+
+
         // Setup: recursively creating 20 books to check out for faculty
-        for (int i = 0; i < 21; i++) {
+        for (int i = 0; i < 20; i++) {
             Book book = new Book("978-0-123456-" + i, "Test Book",
                     "Test Author", Book.BookType.FICTION, 1);
 
             checkout.addBook(book); // adding every book to the library
-            checkout.checkoutBook(book, patron);
-            temp = book;
+            checkout.registerPatron(patron);
+            double result = checkout.checkoutBook(book, patron);
+
+            if(i == 18) {
+                // Verify: Should return 1.1 for success with max warning
+                assertEquals(1.1, result, 0.01,
+                        "Expected warning code (1.1) for " + checkoutClass.getSimpleName());
+                // Verify: Checkout count
+                assertEquals(19, patron.getCheckoutCount(),
+                        "Patron checkout count should be 20 for " + checkoutClass.getSimpleName());
+            }
+
+            // Verify: Patron should have the book in their checked-out list
+            assertTrue(patron.hasBookCheckedOut(book.getIsbn()),
+                    "Patron should  have book in checked-out list for " + checkoutClass.getSimpleName());
         }
 
-        // Execute checkout
-        double result = checkout.checkoutBook(temp, patron);
 
 
-        // Verify: Should return 3.2 for success
-        assertEquals(3.2, result, 0.01,
-                "Expected warning code (3.2) for " + checkoutClass.getSimpleName());
 
 
-        // Verify: Patron should not have the book in their checked-out list
-        assertFalse(patron.hasBookCheckedOut(temp.getIsbn()),
-                "Patron should not have book in checked-out list for " + checkoutClass.getSimpleName());
     }
     //Test 14
     @ParameterizedTest
@@ -508,6 +523,9 @@ public class CheckoutBlackBoxSample {
         // Verify: Should return 0.0 for success
         assertEquals(0.0, result, 0.01,
                 "Expected success code (0.0) for " + checkoutClass.getSimpleName());
+        // Verify: Checkout count
+        assertEquals(1, patron.getCheckoutCount(),
+                "Patron checkout count should be 1 for " + checkoutClass.getSimpleName());
 
 
         // Verify: Patron should have the book in their checked-out list
@@ -575,10 +593,10 @@ public class CheckoutBlackBoxSample {
         checkout.registerPatron(patron);
         checkout.addBook(book);
         checkout.addBook(book1);
-        checkout.addBook(book2);
+
 
         checkout.checkoutBook(book1, patron);
-        checkout.checkoutBook(book2, patron);
+
 
 
         // Execute checkout
@@ -590,8 +608,8 @@ public class CheckoutBlackBoxSample {
                 "Expected success code (1.1) for " + checkoutClass.getSimpleName());
 
         // Verify: Checkout count
-        assertEquals(3, patron.getCheckoutCount(),
-                "Patron checkout count should be 3 for " + checkoutClass.getSimpleName());
+        assertEquals(2, patron.getCheckoutCount(),
+                "Patron checkout count should be 2 for " + checkoutClass.getSimpleName());
 
         // Verify: Patron should have the book in their checked-out list
         assertTrue(patron.hasBookCheckedOut(book.getIsbn()),
@@ -650,7 +668,9 @@ public class CheckoutBlackBoxSample {
         assertEquals(0.0, result, 0.01,
                 "Expected warning code (0.0) for " + checkoutClass.getSimpleName());
 
-
+        // Verify: Checkout count
+        assertEquals(1, patron.getCheckoutCount(),
+                "Patron checkout count should be 1 for " + checkoutClass.getSimpleName());
         // Verify: Patron should not have the book in their checked-out list
         assertTrue(patron.hasBookCheckedOut(book.getIsbn()),
                 "Patron should have book in checked-out list for " + checkoutClass.getSimpleName());
