@@ -34,15 +34,12 @@ public class Checkout {
     private static class Transaction {
         Patron patron;
         Book book;
-        LocalDate checkoutDate;
-        LocalDate dueDate;
         LocalDate returnDate;
 
         Transaction(Patron patron, Book book, LocalDate checkoutDate, LocalDate dueDate) {
             this.patron = patron;
             this.book = book;
-            this.checkoutDate = checkoutDate;
-            this.dueDate = dueDate;
+
             this.returnDate = null;
         }
     }
@@ -167,9 +164,9 @@ public class Checkout {
         if (book == null) {
             return Book_Null;
         }
-        LocalDate checkoutDate = LocalDate.now();
+
         LocalDate dueDate = LocalDate.now().plusDays(patron.getLoanPeriodDays());
-        Map<String, Book> bookList = this.bookList;
+
         Map<String, Patron> patronList = this.patrons;
         Map<String, LocalDate> checkedOutBooks = patron.getCheckedOutBooks();
 
@@ -324,7 +321,7 @@ public class Checkout {
             return false;
         }
 
-        return typeString == expectedType.toString();
+        return typeString.equals(expectedType.toString());
     }
 
     /**
@@ -418,10 +415,10 @@ public class Checkout {
     }
 
     public Map<String, Book> getInventory() {
-        return bookList;
+        return new HashMap<>(bookList);
     }
 
     public Map<String, Patron> getPatrons() {
-        return patrons;
+        return new HashMap<>(patrons);
     }
 }
