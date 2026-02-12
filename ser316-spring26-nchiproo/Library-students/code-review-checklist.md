@@ -29,11 +29,11 @@ Review ALL source files (in main not test) in the project and identify defects u
 |3|Patron.java|108|CG|getmaxcheckoutlimits is a switch that shows the limit on how many books can be checked out. Its default is 5.0 but a child is only allowed 3 checked out books at once.|medium|
 |4|Checkout.java|142-144|FD|Patron had fines over $10, was supposed to get error message 4.1 when checking out. Users return code was 0.0 (successful checkout)|high|
 |5|Book.java|105-107|CG|The return books only has an option to return if there are less then 100 copies available. what if there is 100 copies available to check out and someone returns one?|high|
-|6||||||
-|7||||||
-|8||||||
-|9||||||
-|10||||||
+|6|checkout.java|145|FD|When checking out a reference only book, success code 5.0 was expected but would get code 2.0.|high|
+|7|checkoutBlackBoxSample.java|453|FD|Expected error code 3.2, but returned 2.0 for available book for checkout 1|high|
+|8|checkoutBlackBoxSample.java|517|FD|Expected error code 3.2, returned 0.0 for available book for checkout 1.|high|
+|9|checkoutBlackBoxSample.java|558|FD|Expected success code 1.1, retuned 0.0 for Checkout1.|high|
+|10|checkoutBlackBoxSample.java|61|FD|Patron should have book in list for checkout1.|high|
 
 **Severity Levels:**
 

@@ -7,6 +7,6 @@ build/
 *.class
 .idea/
 out/
-
-
+jacoco/
+*.zip
 

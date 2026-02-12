@@ -105,7 +105,7 @@ public class Patron {
             case CHILD:
                 return 3;
             default:
-                return 5;
+                return 3;
         }
     }
 
