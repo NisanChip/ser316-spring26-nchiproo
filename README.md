@@ -42,6 +42,10 @@ Black Box: build/reports/tests/blackBoxTest/index.html
 
 
 
+
+
+
+
 White Box: build/reports/tests/whiteBoxTest/index.html
 Requirements
 Java JDK 18 or higher
