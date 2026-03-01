@@ -16,6 +16,18 @@ public class Patron {
     private Map<String, LocalDate> bookMap;
     private int overdue;
     private LocalDate memberDate;
+    private static final int Max_Checkout_Limit_Faculty = 20;
+    private static final int Max_Checkout_Limit_Staff = 15;
+    private static final int Max_Checkout_Limit_Student = 10;
+    private static final int Max_Checkout_Limit_Public = 5;
+    private static final int Max_Checkout_Limit_Children = 3;
+    private static final int Max_Checkout_Limit_Default = 3;
+    private static final int Loan_Period_Days_Faculty = 60;
+    private static final int Loan_Period_Days_Staff = 45;
+    private static final int Loan_Period_Days_Student = 30;
+    private static final int Loan_Period_Days_Public = 21;
+    private static final int Loan_Period_Days_Children = 14;
+    private static final int Loan_Period_Days_Default = 14;
 
     public enum PatronType {
         STUDENT,
@@ -95,17 +107,17 @@ public class Patron {
     public int getMaxCheckoutLimit() {
         switch (type) {
             case FACULTY:
-                return 20;
+                return Max_Checkout_Limit_Faculty;
             case STAFF:
-                return 15;
+                return Max_Checkout_Limit_Staff;
             case STUDENT:
-                return 10;
+                return Max_Checkout_Limit_Student;
             case PUBLIC:
-                return 5;
+                return Max_Checkout_Limit_Public;
             case CHILD:
-                return 3;
+                return Max_Checkout_Limit_Children;
             default:
-                return 3;
+                return Max_Checkout_Limit_Default;
         }
     }
 
@@ -115,18 +127,25 @@ public class Patron {
      * @return Loan period in days
      */
     public int getLoanPeriodDays() {
-        if(type==PatronType.FACULTY)return 60;
-        else if(type==PatronType.STAFF)return 45;
-        else if(type==PatronType.STUDENT)return 30;
-        else if(type==PatronType.PUBLIC)return 21;
-        else if(type==PatronType.CHILD)return 14;
-        else return 21;
+        if (type == PatronType.FACULTY) return Loan_Period_Days_Faculty;
+        else if (type == PatronType.STAFF) return Loan_Period_Days_Staff;
+        else if (type == PatronType.STUDENT) return Loan_Period_Days_Student;
+        else if (type == PatronType.PUBLIC) return Loan_Period_Days_Public;
+        else if (type == PatronType.CHILD) return Loan_Period_Days_Children;
+        else return Loan_Period_Days_Default;
     }
 
+    /**
+     * Reset previous fines to zero
+     */
     public void resetFines() {
         this.fines = 0.0;
     }
 
+    /**
+     * Checks if patron is suspended from checking out book
+     * @return returns boolean if patron is suspended true and false if patron is not suspended.
+     */
     public boolean chkSuspended() {
         return this.suspended;
     }
@@ -216,6 +235,7 @@ public class Patron {
 
     @Override
     public String toString() {
-        return patronId+"-"+name+"("+type+")"+"[Books:"+bookMap.size()+"/"+getMaxCheckoutLimit()+",Fines:$"+ fines +"]";
+        return patronId + "-" + name + "(" + type + ")" + "[Books:" + bookMap.size() + "/" + getMaxCheckoutLimit() +
+                ",Fines:$" + fines + "]";
     }
 }
