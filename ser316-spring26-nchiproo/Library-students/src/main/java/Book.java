@@ -1,5 +1,3 @@
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Represents a book in the library system.
@@ -10,10 +8,11 @@ public class Book {
     private String title;
     private String author;
     private BookType type;
-    private boolean available;
+    //commenting out redundant state: private boolean available;
     private boolean referenceOnly;
     private int totalCopies;
     private int availableCopies;
+    private static final int maxBookCopies = 1000;
 
     public enum BookType {
         FICTION,
@@ -43,10 +42,10 @@ public class Book {
         // Reference books never circulate - always unavailable for checkout
         if (this.referenceOnly) {
             this.availableCopies = 0;
-            this.available = false;
+            //commenting out redundant state: this.available = false;
         } else {
             this.availableCopies = totalCopies;
-            this.available = true;
+            //commenting out redundant state: this.available = true;
         }
     }
 
@@ -86,7 +85,7 @@ public class Book {
     // Setters
     public void setAvailableCopies(int copies) {
         this.availableCopies = copies;
-        this.available = (copies > 0);
+        //commenting out redundant state: this.available = (copies > 0);
     }
 
     /**
@@ -96,26 +95,33 @@ public class Book {
         if (availableCopies > 0) {
             availableCopies--;
         }
-        this.available = (availableCopies > 0);
+        //commenting out redundant state: this.available = (availableCopies > 0);
     }
 
     /**
      * Increments available copies when book is returned.
      */
     public void returnBook() {
-        if (availableCopies < 1000) {
+        if (availableCopies < maxBookCopies) {
             availableCopies++;
         }
-        this.available = (availableCopies > 0);
+        //commenting out redundant state: this.available = (availableCopies > 0);
     }
 
+    /**
+     * resetting availability to total copies that are available
+     */
     public void resetAvailability() {
         this.availableCopies = this.totalCopies;
-        this.available = true;
+        //commenting out redundant state: this.available = true;
     }
 
+    /**
+     * Checking availability of book
+     * @return True if available copies is greater then 0 and false if available copies is not greater then 0
+     */
     public boolean checkAvailability() {
-        return this.available;
+        return availableCopies > 0;
     }
 
     @Override
@@ -140,6 +146,7 @@ public class Book {
 
     @Override
     public String toString() {
-        return "Book[isbn=" + isbn + ",title=" + title + ",author=" + author + ",type=" + type + ",availableCopies=" + availableCopies + "/" + totalCopies + "]";
+        return "Book[isbn=" + isbn + ",title=" + title + ",author=" + author + ",type=" + type + ",availableCopies="
+                + availableCopies + "/" + totalCopies + "]";
     }
 }
