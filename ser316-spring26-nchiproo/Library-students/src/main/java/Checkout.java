@@ -17,12 +17,21 @@ public class Checkout {
     private static final double Patron_Fine_Balance_Over_Ten = 4.1;
     private static final double Fine_Equals_Ten = 10.0;
     private static final double Book_Null = 2.1;
+    private static final double Book_Renewal = 0.1;
     private static final double Book_Reference_Only = 5.0;
     private static final double Patron_Max_Checkout_Limit = 3.2;
     private static final double Successful_Checkout_With_Warning = 1.1;
+    private static final double Fine_First_Seven_days = 0.25;
+    private static final double Fine_Second_Seven_days = 0.5;
+    private static final double Fine_Fifteen_Days_Plus = 1.00;
     private static final int Seven_Days = 7;
     private static final int Fourteen_Days = 14;
     private static final int Overdue_Three = 3;
+    private static final int Ten_Digit_isbn = 10;
+    private static final int Thirteen_Digit_isbn = 13;
+
+
+
 
     private Map<String, Book> bookList; // ISBN -> Book
     private Map<String, Patron> patrons; // PatronID -> Patron
@@ -44,16 +53,27 @@ public class Checkout {
         }
     }
 
+    /**
+     * creates a Checkout that tracks bookList, patrons, and history
+     */
     public Checkout() {
         this.bookList = new HashMap<>();
         this.patrons = new HashMap<>();
         this.history = new ArrayList<>();
     }
 
+    /**
+     * Adds book to booklist by getting isbn and book
+     * @param book added to Book
+     */
     public void addBook(Book book) {
         bookList.put(book.getIsbn(), book);
     }
 
+    /**
+     * Registers patrons by Patron
+     * @param patron the patron that will be added to Check out
+     */
     public void registerPatron(Patron patron) {
         patrons.put(patron.getPatronId(), patron);
     }
@@ -201,7 +221,7 @@ public class Checkout {
             }
             if (patron.hasBookCheckedOut(book.getIsbn())) {
                 patron.getCheckedOutBooks().put(book.getIsbn(), dueDate);
-                return 0.1;
+                return Book_Renewal;
             }
             if (!patron.hasBookCheckedOut(book.getIsbn())) {
                 if (book.getAvailableCopies() <= 0) {
@@ -213,7 +233,7 @@ public class Checkout {
         if (patron.isAccountSuspended()) {
             return Patron_Suspended;
         }
-        if (patron.getOverdueCount() >= 3) {
+        if (patron.getOverdueCount() >= Overdue_Three) {
             return Patron_Overdue;
         }
         if (patron.getFineBalance() >= Fine_Equals_Ten) {
@@ -253,18 +273,18 @@ public class Checkout {
 
         // First 7 days: $0.25/day
         int days1 = Math.min(numOfDays, Seven_Days);
-        fine += days1 * 0.25;
+        fine += days1 * Fine_First_Seven_days;
 
         // Days 8-14: $0.50/day
         if (numOfDays > Seven_Days) {
             int days2 = Math.min(numOfDays - Seven_Days, Seven_Days);
-            fine += days2 * 0.50;
+            fine += days2 * Fine_Second_Seven_days;
         }
 
         // Days 15+: $1.00/day
         if (numOfDays > Fourteen_Days) {
             int days3 = numOfDays - Fourteen_Days;
-            fine += days3 * 1.00;
+            fine += days3 * Fine_Fifteen_Days_Plus;
         }
 
         // Double rate for REFERENCE and TEXTBOOK
@@ -306,7 +326,7 @@ public class Checkout {
 
         // Check length (must be 10 or 13 digits)
         int length = numbers.length();
-        return length == 10 || length == 13;
+            return length == Ten_Digit_isbn || length == Thirteen_Digit_isbn;
     }
 
     /**
