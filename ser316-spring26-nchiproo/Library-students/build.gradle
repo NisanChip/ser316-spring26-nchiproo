@@ -64,7 +64,7 @@ test.finalizedBy jacocoTestReport
 // Optionally enable static analysis with -PstaticAnalysis=true
 if (project.hasProperty('staticAnalysis')) {
     apply plugin: 'com.github.spotbugs'
-//    apply plugin: 'pmd'
+    apply plugin: 'pmd'
 
     spotbugs {
         ignoreFailures = true
