@@ -13,6 +13,7 @@ plugins {
     id 'application'
     id 'jacoco'
     id 'checkstyle'
+    id 'pmd'
 }
 
 repositories { mavenCentral() }
@@ -85,11 +86,12 @@ if (project.hasProperty('staticAnalysis')) {
     }
 
     // add PMD config if desired maybe used in assign 6
-//    pmd {
-//        toolVersion = '6.52.0'
-//        ruleSets = []
-//        ignoreFailures = true
-//    }
+    pmd {
+        toolVersion = '6.52.0'
+        ruleSets = []
+        ignoreFailures = true
+	ruleSetFiles = files("config/pmd/pmd.xml")
+   }
 }
 
 // Checkstyle configuration (always available)
