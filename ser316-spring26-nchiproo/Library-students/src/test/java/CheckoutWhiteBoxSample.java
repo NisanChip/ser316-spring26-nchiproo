@@ -4,7 +4,9 @@ import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * Sample White-Box tests for the Checkout system.
@@ -18,39 +20,52 @@ import static org.junit.jupiter.api.Assertions.*;
  * examining the code structure and ensuring all paths are tested.
  */
 public class CheckoutWhiteBoxSample {
-
+    private static final int Three_Books = 3;
+    private static final int Thirty_days = 30;
+    private static final double Delta = 0.01;
+    private static final double Fine_Amount_Twenty_One_Point_Two_Five = 21.25;
     private Checkout checkout;
 
+    /**
+     * Set up for new checkout
+     */
     @BeforeEach
     public void setUp() {
         checkout = new Checkout();
     }
-    //Test 1
-    //sequence 1
+
+    /**
+     * Test 1: count books by type null
+     * Sequence 1
+     */
     @Test
     @DisplayName("WB Test: countBooksByType - null type branch")
-    public void testCountBooksByType_NullType() {
+    public void testCountBooksByTypeNullType() {
         // Branch: type == null → TRUE
         int result = checkout.countBooksByType(null, false);
         assertEquals(0, result, "Should return 0 for null type");
     }
 
-
-    // Test 2 booktype fiction not available, booktype unavailable, should return 0 for looped
-    //sequence 2
+    /**
+     * Test 2:  book type fiction not available, book type unavailable, should return 0 for looped
+     * Sequence 2
+     */
     @Test
     @DisplayName("WB Test 2: countBooksByType - Fiction type branch")
-    public void testCountBooksByType_NotAvailable() {
+    public void testCountBooksByTypeNotAvailable() {
         // Branch: type == Fiction → False
         int result = checkout.countBooksByType(Book.BookType.FICTION, false);
         assertEquals(0, result, "Should return 0 for null type");
     }
 
-    // Test 3 booktype fiction available, 1 copy
-    //sequence 3
+
+    /**
+     * Test 3: Book type fiction available only one copy
+     * Sequence 3
+     */
     @Test
     @DisplayName("WB Test 3: countBooksByType - Fiction type branch")
-    public void testCountBooksByType_Available() {
+    public void testCountBooksByTypeAvailable() {
         // Branch: type == Fiction → True
         Book book = new Book("978-0-123456-78-9", "Test Book",
                 "Test Author", Book.BookType.FICTION, 1);
@@ -59,11 +74,13 @@ public class CheckoutWhiteBoxSample {
         assertEquals(1, result, "Should return 1 book for Fiction type");
     }
 
-    // Test 4 multiple books available for type
-    //sequence 4
+    /**
+     * Test 4: Multiple books available for fiction type
+     * Sequence 4
+     */
     @Test
     @DisplayName("WB Test 4: countBooksByType - Fiction type branch")
-    public void testCountBooksByType_MultipleCopiesAvailable() {
+    public void testCountBooksByTypeMultipleCopiesAvailable() {
         // Branch: type == Fiction → True
         Book book = new Book("978-0-123456-78-9", "Test Book",
                 "Test Author", Book.BookType.FICTION, 1);
@@ -76,15 +93,16 @@ public class CheckoutWhiteBoxSample {
         checkout.addBook(book2);
 
         int result = checkout.countBooksByType(Book.BookType.FICTION, true);
-        assertEquals(3, result, "Should return 1 book for Fiction type");
+        assertEquals(Three_Books, result, "Should return 3 book for Fiction type");
     }
 
-    // Test 5 booktype fiction unavailable, other books available
-    //sequence 3
-    //sequence 4
+    /**
+     * Test 5: book type fiction unavailable but other book types are available
+     * Sequence 3 and 4
+     */
     @Test
     @DisplayName("WB Test 5: countBooksByType - Fiction type branch")
-    public void testCountBooksByType_OtherTypesAvailable() {
+    public void testCountBooksByTypeOtherTypesAvailable() {
         // Branch: type == Fiction → False
         Book book = new Book("978-0-123456-78-9", "Test Book",
                 "Test Author", Book.BookType.CHILDREN, 1);
@@ -106,7 +124,10 @@ public class CheckoutWhiteBoxSample {
         assertEquals(1, resultTextBook, "Should return 1 book available");
     }
 
-    // Test 6 testing patrontype
+
+    /**
+     * Test 6: Testing patron type Student
+     */
     @Test
     @DisplayName("WB Test 6: isPatronType")
     public void testPatronType() {
@@ -123,7 +144,10 @@ public class CheckoutWhiteBoxSample {
 
     }
 
-    // Test 7 testing returnbook()
+
+    /**
+     * Test 7: testing returned book with returnbook()
+     */
     @Test
     @DisplayName("WB Test 7: returnbook()")
     public void testReturnBook() {
@@ -150,7 +174,9 @@ public class CheckoutWhiteBoxSample {
 
     }
 
-    // Test 8 testing testCalculateFine()
+    /**
+     * Test 8: testing testCalculateFine()
+     */
     @Test
     @DisplayName("WB Test 8: testCalculateFine()")
     public void testCalculateFine() {
@@ -162,14 +188,14 @@ public class CheckoutWhiteBoxSample {
         checkout.addBook(book);
         checkout.registerPatron(patron);
         double firstCheckout = checkout.checkoutBook(book, patron);
-        assertEquals(0.0, firstCheckout, 0.01,
+        assertEquals(0.0, firstCheckout, Delta,
                 "Expected success code 0.0 for unavailable book");
-        patron.getCheckedOutBooks().put(book.getIsbn(), LocalDate.now().minusDays(30));
+        patron.getCheckedOutBooks().put(book.getIsbn(), LocalDate.now().minusDays(Thirty_days));
 
 
         double result = checkout.returnBook(book.getIsbn(), patron);
         // Verify: Should return 2.0 for unavailable book
-        assertEquals(21.25, result, 0.01,
+        assertEquals(Fine_Amount_Twenty_One_Point_Two_Five, result, Delta,
                 "Expected fine of 21.25");
 
         // Verify: Patron should NOT have the book
@@ -177,11 +203,13 @@ public class CheckoutWhiteBoxSample {
                 "Patron should NOT have book in list");
     }
 
-    //Test 9 Testbook if b == null
-    //sequence 2
+    /**
+     * Test 9: testing testBook if b == null
+     * Sequence 2
+     */
     @Test
-    @DisplayName("WB Test 9: countBooksByType_bisNullType ")
-    public void testCountBooksByType_bIsNullType() {
+    @DisplayName("WB Test 9: countBooksByTypebisNullType ")
+    public void testCountBooksByTypebIsNullType() {
         // Branch: b == null → TRUE
         checkout.getInventory().put("null", null);
         int result = checkout.countBooksByType(Book.BookType.FICTION, false);
@@ -189,11 +217,14 @@ public class CheckoutWhiteBoxSample {
 
     }
 
-    //Test 10
-    //sequence 4
+
+    /**
+     * Test 10: testing countBooks by type with only available set to false
+     * Sequence 4
+     */
     @Test
     @DisplayName("WB Test 10: countBooksByType")
-    public void testCountBooksByType_OnlyAvailableFalse() {
+    public void testCountBooksByTypeOnlyAvailableFalse() {
         // Branch: b == null → TRUE
         Book book = new Book("978-0-123456-78-9", "Test Book",
                 "Test Author", Book.BookType.FICTION, 1);
@@ -202,11 +233,14 @@ public class CheckoutWhiteBoxSample {
         int result = checkout.countBooksByType(Book.BookType.FICTION, false);
         assertEquals(1, result, "Should return 0 for null type");
     }
-    //Test 11
-    //sequence 4
+
+    /**
+     * Test 11: testing count books by type b is available set to true
+     * Sequence 4
+     */
     @Test
     @DisplayName("WB Test 11: countBooksByType")
-    public void testCountBooksByType_bIsAvailableTrue() {
+    public void testCountBooksByTypebIsAvailableTrue() {
         // Branch: b == available → TRUE
         Book book = new Book("978-0-123456-78-9", "Test Book",
                 "Test Author", Book.BookType.FICTION, 1);
